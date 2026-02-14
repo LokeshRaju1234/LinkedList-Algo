@@ -16,7 +16,7 @@ public:
 
         while(fast != nullptr && fast->next != nullptr)
         {
-            slow = slow->next;
+            slow = slow->next;//at last slow will points to the middle of the linkedlist 
             fast = fast->next->next;
         }
 
