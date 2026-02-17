@@ -17,7 +17,7 @@ public:
             slow = slow->next;
             fast = fast->next->next;
 
-            if(slow == fast)
+            if(slow == fast)//detected a cycle
             {
                 return true;
             }
