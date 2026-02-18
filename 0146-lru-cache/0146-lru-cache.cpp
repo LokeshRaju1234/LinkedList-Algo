@@ -1,99 +1,101 @@
-class Node
-{
-    public:
-    int key,value;
-    Node* prev,*next;
+#include <unordered_map>
+using namespace std;
 
-    Node(int a,int b)
-    {
-        key = a;
-        value = b;
-        prev=next=NULL;
-    }
-};
 class LRUCache {
 public:
+
+    // Doubly Linked List Node
+    class Node {
+    public:
+        int key;
+        int value;
+        Node* prev;
+        Node* next;
+
+        Node(int k, int v) {
+            key = k;
+            value = v;
+            prev = NULL;
+            next = NULL;
+        }
+    };
+
+    int capacity;
+    unordered_map<int, Node*> mp;
+
     Node* head;
     Node* tail;
-    int cap;
-    int size;
-    Node* arr[10005];
-    void removeNode(Node* node)
-    {
-        node->prev->next = node->next;
-        node->next->prev = node->prev;
+
+    // Constructor
+    LRUCache(int cap) {
+        capacity = cap;
+
+        // dummy nodes (sentinel nodes)
+        head = new Node(-1, -1);
+        tail = new Node(-1, -1);
+
+        head->next = tail;
+        tail->prev = head;
     }
-    void addToFront(Node* node)
-    {
+
+    // Remove a node from list
+    void deleteNode(Node* node) {
+        Node* prevNode = node->prev;
+        Node* nextNode = node->next;
+
+        prevNode->next = nextNode;
+        nextNode->prev = prevNode;
+    }
+
+    // Insert node right after head (most recently used)
+    void insertAfterHead(Node* node) {
         node->next = head->next;
         node->prev = head;
+
         head->next->prev = node;
         head->next = node;
     }
-    LRUCache(int capacity) 
-    {
-        cap = capacity;
-        head = new Node(0,0);
-        tail = new Node(0,0);
-        head->next = tail;
-        tail->prev = head;
 
-        for(int i = 0;i<10000;i++)
-        {
-            arr[i] = NULL;
-        }
-    }
+    // GET operation
+    int get(int key) {
 
+        // not found
+        if(mp.find(key) == mp.end())
+            return -1;
 
-    
-    int get(int key) 
-    {
+        Node* node = mp[key];
 
-        if(arr[key] == NULL) return -1; 
+        // move to front (recently used)
+        deleteNode(node);
+        insertAfterHead(node);
 
-        Node* node = arr[key];
-        removeNode(node);
-        addToFront(node);
         return node->value;
     }
-    
+
+    // PUT operation
     void put(int key, int value) {
-        int currentsize;
-        if(arr[key] != NULL)
-        {
-            Node* node = arr[key];
+
+        // key already exists → update + move to front
+        if(mp.find(key) != mp.end()) {
+            Node* node = mp[key];
             node->value = value;
-            removeNode(node);
-            addToFront(node);
+
+            deleteNode(node);
+            insertAfterHead(node);
         }
-        else
-        {
-            if(cap == 0)return;
-
-
-            for(int i = 0;i<10000;i++)
-            {
-                if(arr[i] != NULL)currentsize++;
-            }
-
-            if(cap == currentsize)
-            {
+        else {
+            // cache full → remove LRU
+            if(mp.size() == capacity) {
                 Node* lru = tail->prev;
-                removeNode(lru);
-                arr[lru->key] = NULL;
-                delete lru;
+
+                deleteNode(lru);
+                mp.erase(lru->key);
             }
 
-            Node* newNode = new Node(key,value);
-            addToFront(newNode);
-            arr[key] = newNode;
+            // insert new node
+            Node* newNode = new Node(key, value);
+            insertAfterHead(newNode);
+            mp[key] = newNode;
         }
     }
 };
-
-/**
- * Your LRUCache object will be instantiated and called as such:
- * LRUCache* obj = new LRUCache(capacity);
- * int param_1 = obj->get(key);
- * obj->put(key,value);
- */
