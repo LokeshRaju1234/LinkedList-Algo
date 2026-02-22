@@ -3,13 +3,13 @@ public:
     int minEatingSpeed(vector<int>& piles, int h) {
         int low = 1,high = *max_element(piles.begin(),piles.end());
 
-        long long reqtime = INT_MAX;
+        int ans = 0;
         while(low <= high)
         {
             long long mid = low + (high - low) / 2;
             if(reqTime(piles,mid,h))
             {
-                reqtime = min(reqtime,mid);
+                ans = mid;
                 high = mid - 1;
             }
             else
@@ -18,7 +18,7 @@ public:
             }
         }
 
-        return reqtime;
+        return ans;
     }
 
     bool reqTime(vector<int>& piles,int hourly,int deadline)
