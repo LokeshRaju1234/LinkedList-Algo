@@ -23,12 +23,13 @@ public:
         ListNode* curr = prev->next;
         ListNode* next = NULL;
 
+        //looping for right - left tims because only int window r - l + 1 the starting ele in sublist moves to right and only remaining elements changes their positions
         for(int i = 0;i < right - left;i++)
         {
-            next = curr->next;
-            curr->next = next->next;
-            next->next = prev->next;
-            prev->next = next;
+            next = curr->next; //always point next pointer after curr
+            curr->next = next->next;//remove the next element's link becuase it moves before of this curr
+            next->next = prev->next;//move the next element before of curr
+            prev->next = next;//at last link prev to the newly moved element
         }
         return dummy->next;
     }
